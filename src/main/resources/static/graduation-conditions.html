@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điều Kiện Xét Tốt Nghiệp - Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=2">
+    <style>
+        .input-group.full-width {
+            grid-column: 1 / -1;
+        }
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        @media (max-width: 768px) {
+            form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="glass-container">
+        <nav class="main-nav">
+            <a href="graduation-conditions.html" class="nav-link active">Điều kiện tốt nghiệp</a>
+            <a href="graduation-results.html" class="nav-link">Kết quả tốt nghiệp</a>
+        </nav>
+
+        <header>
+            <h1>Quản Lý Điều Kiện Tốt Nghiệp</h1>
+            <p>Thiết lập và quản lý các điều kiện để xét tốt nghiệp.</p>
+        </header>
+
+        <section class="add-section glass-panel">
+            <h2>Thêm Điều Kiện Mới</h2>
+            <form id="addForm">
+                <div class="input-group">
+                    <label>Khóa áp dụng</label>
+                    <input type="text" id="cohort" required placeholder="VD: K22">
+                </div>
+                <div class="input-group">
+                    <label>Số tín chỉ tối thiểu</label>
+                    <input type="number" id="minCredits" required placeholder="VD: 150">
+                </div>
+                <div class="input-group">
+                    <label>GPA Tối thiểu</label>
+                    <input type="number" step="0.01" id="minGpa" required placeholder="VD: 2.0">
+                </div>
+                <div class="input-group">
+                    <label>Số tín chỉ nợ tối đa</label>
+                    <input type="number" id="maxFailed" value="0" required placeholder="VD: 0">
+                </div>
+                <div class="input-group full-width">
+                    <label>Chuẩn Tiếng Anh</label>
+                    <input type="text" id="englishReq" placeholder="VD: TOEIC 450, B1...">
+                </div>
+                
+                <div class="input-group full-width">
+                    <button type="submit" class="btn-primary">Lưu Thông Tin</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="table-section glass-panel">
+            <h2>Danh sách điều kiện</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Khóa</th>
+                            <th>Tín Chỉ Tối Thiểu</th>
+                            <th>GPA Tối Thiểu</th>
+                            <th>Tín Chỉ Nợ CĐ</th>
+                            <th>Chuẩn Tiếng Anh</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const API_URL = '/api/graduation-conditions';
+
+        async function fetchConditions() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+
+                data.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="font-weight: 600; color: var(--primary);">${item.appliedCohort}</td>
+                        <td>${item.minTotalCredits}</td>
+                        <td style="font-weight: 600;">${item.minGpa}</td>
+                        <td style="color: var(--danger);">${item.maxFailedCredits}</td>
+                        <td>${item.englishRequirement || 'Không yêu cầu'}</td>
+                        <td>
+                            <button onclick="deleteCondition('${item.id}')" class="btn-delete">Xóa</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error("Lỗi khi tải dữ liệu:", error);
+            }
+        }
+
+        document.getElementById('addForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const payload = {
+                programId: "00000000-0000-0000-0000-000000000000",
+                appliedCohort: document.getElementById('cohort').value,
+                minTotalCredits: parseInt(document.getElementById('minCredits').value),
+                minGpa: parseFloat(document.getElementById('minGpa').value),
+                maxFailedCredits: parseInt(document.getElementById('maxFailed').value),
+                englishRequirement: document.getElementById('englishReq').value
+            };
+
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            document.getElementById('addForm').reset();
+            fetchConditions(); 
+        });
+
+        async function deleteCondition(id) {
+            if(confirm('Bạn có chắc muốn xóa điều kiện này?')) {
+                await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                fetchConditions(); 
+            }
+        }
+
+        fetchConditions();
+    </script>
+</body>
+</html>

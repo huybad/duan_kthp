@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Kết quả Xét tốt nghiệp - Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=2">
+    <style>
+        .input-group.full-width {
+            grid-column: 1 / -1;
+        }
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="glass-container">
+        <nav class="main-nav">
+            <a href="graduation-conditions.html" class="nav-link">Điều kiện tốt nghiệp</a>
+            <a href="graduation-results.html" class="nav-link active">Kết quả tốt nghiệp</a>
+        </nav>
+
+        <header>
+            <h1>Kết quả xét tốt nghiệp</h1>
+            <p>Quản lý kết quả đánh giá tốt nghiệp của sinh viên.</p>
+        </header>
+
+        <section class="add-section glass-panel">
+            <h2>Thêm kết quả mới</h2>
+            <form id="resultForm">
+                <input type="hidden" id="resultId">
+                <div class="input-group">
+                    <label>Mã Sinh Viên (ID)</label>
+                    <input type="text" id="studentId" required placeholder="VD: 123e4567-...">
+                </div>
+                <div class="input-group">
+                    <label>Mã Điều kiện (Khóa áp dụng)</label>
+                    <select id="conditionId" required>
+                        <option value="">-- Đang tải dữ liệu... --</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>GPA</label>
+                    <input type="number" id="gpa" step="0.01" min="0" max="4" required placeholder="VD: 3.50">
+                </div>
+                <div class="input-group">
+                    <label>Tổng tín chỉ</label>
+                    <input type="number" id="totalCredits" required placeholder="VD: 150">
+                </div>
+                <div class="input-group">
+                    <label>Số tín chỉ nợ</label>
+                    <input type="number" id="failedCredits" required placeholder="VD: 0">
+                </div>
+                <div class="input-group">
+                    <label>Kết quả</label>
+                    <select id="result" required>
+                        <option value="1">Đạt</option>
+                        <option value="0">Không đạt</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Xếp loại</label>
+                    <select id="classification" required>
+                        <option value="1">Xuất sắc</option>
+                        <option value="2">Giỏi</option>
+                        <option value="3">Khá</option>
+                        <option value="4">Trung bình</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Ngày xét</label>
+                    <input type="date" id="decisionDate">
+                </div>
+                <div class="input-group full-width">
+                    <label>Ghi chú</label>
+                    <textarea id="note" rows="3" placeholder="Nhập ghi chú bổ sung..."></textarea>
+                </div>
+                <div class="input-group full-width">
+                    <button type="submit" class="btn-primary" id="submitBtn">Lưu Kết Quả</button>
+                    <button type="button" class="btn-secondary" id="cancelBtn" style="display:none; margin-top: 10px;">Hủy sửa</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="table-section glass-panel">
+            <h2>Tất cả kết quả</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã Sinh Viên</th>
+                            <th>GPA</th>
+                            <th>Tổng tín chỉ</th>
+                            <th>Kết quả</th>
+                            <th>Xếp loại</th>
+                            <th>Ngày xét</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script src="js/graduation-results.js?v=2"></script>
+</body>
+</html>

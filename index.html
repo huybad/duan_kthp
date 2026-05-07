@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Cố Vấn Học Tập</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans p-8">
+
+    <div class="max-w-5xl mx-auto">
+        <h2 class="text-2xl font-bold mb-6 text-gray-900">Phân Công Cố Vấn Học Tập</h2>
+
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-8">
+            <h3 class="text-lg font-semibold mb-4">Thêm Phân Công Mới</h3>
+            <form id="addForm" class="flex gap-4">
+                <input type="text" id="empId" placeholder="Mã Giảng Viên (UUID)" class="flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <input type="text" id="classId" placeholder="Mã Lớp Học (UUID)" class="flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <input type="date" id="startDate" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition">Thêm Mới</button>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-600 uppercase text-sm">
+                        <th class="p-4 border-b">ID Bản Ghi</th>
+                        <th class="p-4 border-b">Mã Giảng Viên</th>
+                        <th class="p-4 border-b">Mã Lớp</th>
+                        <th class="p-4 border-b">Ngày Bắt Đầu</th>
+                        <th class="p-4 border-b">Trạng Thái</th>
+                        <th class="p-4 border-b">Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api/advisors';
+
+        // Lấy dữ liệu và hiển thị lên bảng
+        async function fetchAdvisors() {
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            data.forEach(item => {
+                const startDate = new Date(item.start_date).toLocaleDateString('vi-VN');
+                const tr = document.createElement('tr');
+                tr.className = "border-b hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="p-4 text-xs text-gray-500">${item.id}</td>
+                    <td class="p-4 font-medium">${item.employee_id}</td>
+                    <td class="p-4">${item.student_classe_id}</td>
+                    <td class="p-4">${startDate}</td>
+                    <td class="p-4"><span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">Đang hoạt động</span></td>
+                    <td class="p-4">
+                        <button onclick="deleteAdvisor('${item.id}')" class="text-red-500 hover:text-red-700 text-sm font-medium">Xóa (Soft)</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Xử lý thêm mới
+        document.getElementById('addForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                employee_id: document.getElementById('empId').value,
+                student_classe_id: document.getElementById('classId').value,
+                start_date: document.getElementById('startDate').value
+            };
+
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            document.getElementById('addForm').reset();
+            fetchAdvisors(); // Refresh bảng
+        });
+
+        // Xử lý xóa mềm
+        async function deleteAdvisor(id) {
+            if(confirm('Bạn có chắc muốn ngừng phân công này (Xóa mềm)?')) {
+                await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                fetchAdvisors(); // Refresh bảng
+            }
+        }
+
+        // Load dữ liệu khi vào trang
+        fetchAdvisors();
+    </script>
+</body>
+</html>
